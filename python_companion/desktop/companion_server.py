@@ -69,4 +69,4 @@ def health_check():
 
 def run_server():
     print("Starting server...", flush=True)
-    app.run(port=50001, debug=True, use_reloader=False)
+    app.run(port=50001, debug=False, use_reloader=False)
