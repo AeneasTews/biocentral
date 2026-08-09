@@ -57,6 +57,13 @@ dependencies:
   widgets_to_image: ^2.0.1
   yaml: '^3.1.2'
 
+dependency_overrides:
+  serious_python:
+    git:
+      url: https://github.com/AeneasTews/serious-python.git
+      path: src/serious_python
+      ref: fix/darwin-thread-stack-size-sigbus
+
 
 dev_dependencies:
   flutter_launcher_icons: ^0.14.1
@@ -71,6 +78,8 @@ flutter_launcher_icons:
   web:
     generate: true
   windows:
+    generate: true
+  macos:
     generate: true
   flutter_lints: "^4.0.0"
 
