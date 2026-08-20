@@ -63,6 +63,11 @@ dependency_overrides:
       url: https://github.com/AeneasTews/serious-python.git
       path: src/serious_python
       ref: fix/darwin-thread-stack-size-sigbus
+  biocentral_api:
+    git:
+      url: https://github.com/AeneasTews/biocentral_api.git
+      path: dart
+      ref: feature/custom-servers
 
 
 dev_dependencies:
