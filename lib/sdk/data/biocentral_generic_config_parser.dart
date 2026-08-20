@@ -8,7 +8,10 @@ class BiocentralGenericConfigHandler {
 
   BiocentralGenericConfigHandler(this._handlingStrategy);
 
-  Future<Map<String, dynamic>> parse(String? fileContent, Map<String, dynamic> configMap,) async {
+  Future<Map<String, dynamic>> parse(
+    String? fileContent,
+    Map<String, dynamic> configMap,
+  ) async {
     final resultMap = Map.of(configMap);
     final configFileMap = await _handlingStrategy.parse(fileContent);
 
@@ -19,7 +22,7 @@ class BiocentralGenericConfigHandler {
     }
     return resultMap;
   }
-  
+
   Future<String> write(Map<BiocentralConfigOption, dynamic> configMap) async => _handlingStrategy.write(configMap);
 
   Set<String> supportedFileExtensions() => _handlingStrategy.supportedFileExtensions();

@@ -14,7 +14,6 @@ final class _ModelHubLoadInternalEvent extends ModelHubEvent {
   _ModelHubLoadInternalEvent(this.predictionModels);
 }
 
-
 @immutable
 final class ModelHubState extends Equatable {
   final List<PredictionModel> predictionModels;
@@ -22,7 +21,7 @@ final class ModelHubState extends Equatable {
   const ModelHubState(this.predictionModels);
 
   const ModelHubState.initial() : predictionModels = const [];
-  
+
   const ModelHubState.loaded(this.predictionModels);
 
   @override

@@ -41,16 +41,16 @@ final class ALHubState extends Equatable {
   final int _selectedCampaignIterationCount;
 
   ALHubState({
-    required this.campaigns, 
-    required this.proteinDatabase, 
-    this.selectedCampaign, 
-    this.datasetChangeStatus = ALDatasetChangeStatus.none,})
-      : _selectedCampaignIterationCount = selectedCampaign?.iterationResults.length ?? 0;
+    required this.campaigns,
+    required this.proteinDatabase,
+    this.selectedCampaign,
+    this.datasetChangeStatus = ALDatasetChangeStatus.none,
+  }) : _selectedCampaignIterationCount = selectedCampaign?.iterationResults.length ?? 0;
 
-  ALHubState.initial():
-        campaigns = const [], 
-        proteinDatabase = const <String, Protein>{}, 
-        selectedCampaign = null, 
+  ALHubState.initial()
+      : campaigns = const [],
+        proteinDatabase = const <String, Protein>{},
+        selectedCampaign = null,
         _selectedCampaignIterationCount = 0,
         datasetChangeStatus = ALDatasetChangeStatus.none;
 
@@ -64,7 +64,8 @@ final class ALHubState extends Equatable {
   int get selectedCampaignIterationCount => _selectedCampaignIterationCount;
 
   @override
-  List<Object?> get props => [campaigns, proteinDatabase, selectedCampaign, _selectedCampaignIterationCount, datasetChangeStatus];
+  List<Object?> get props =>
+      [campaigns, proteinDatabase, selectedCampaign, _selectedCampaignIterationCount, datasetChangeStatus];
 }
 
 class ALHubBloc extends Bloc<ALHubEvent, ALHubState> {
@@ -86,30 +87,36 @@ class ALHubBloc extends Bloc<ALHubEvent, ALHubState> {
           ? event.campaigns.firstWhereOrNull((c) => c.internalName() == selectedName) ?? event.campaigns.first
           : event.campaigns.first;
 
-      emit(ALHubState.loaded(
-        campaigns: event.campaigns,
-        proteinDatabase: state.proteinDatabase,
-        selectedCampaign: selected,
-        datasetChangeStatus: _detectDatasetChange(selected, state.proteinDatabase),
-      ),);
+      emit(
+        ALHubState.loaded(
+          campaigns: event.campaigns,
+          proteinDatabase: state.proteinDatabase,
+          selectedCampaign: selected,
+          datasetChangeStatus: _detectDatasetChange(selected, state.proteinDatabase),
+        ),
+      );
     });
 
     on<_ALHubProteinUpdateInternalEvent>((event, emit) async {
-      emit(ALHubState.loaded(
-        campaigns: state.campaigns,
-        proteinDatabase: event.proteinDatabase,
-        selectedCampaign: state.selectedCampaign,
-        datasetChangeStatus: _detectDatasetChange(state.selectedCampaign, event.proteinDatabase),
-      ),);
+      emit(
+        ALHubState.loaded(
+          campaigns: state.campaigns,
+          proteinDatabase: event.proteinDatabase,
+          selectedCampaign: state.selectedCampaign,
+          datasetChangeStatus: _detectDatasetChange(state.selectedCampaign, event.proteinDatabase),
+        ),
+      );
     });
 
     on<ALHubSelectCampaignEvent>((event, emit) {
-      emit(ALHubState.loaded(
-        campaigns: state.campaigns,
-        selectedCampaign: event.campaign,
-        proteinDatabase: state.proteinDatabase,
-        datasetChangeStatus: _detectDatasetChange(event.campaign, state.proteinDatabase),
-      ),);
+      emit(
+        ALHubState.loaded(
+          campaigns: state.campaigns,
+          selectedCampaign: event.campaign,
+          proteinDatabase: state.proteinDatabase,
+          datasetChangeStatus: _detectDatasetChange(event.campaign, state.proteinDatabase),
+        ),
+      );
     });
 
     _setupSubscriptions();

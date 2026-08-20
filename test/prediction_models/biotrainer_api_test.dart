@@ -12,7 +12,9 @@ void main() {
     test('Prediction Model can be loaded from result yaml file', () async {
       final File biotrainerOutput = File(outputPath);
       final PredictionModel? model = BiotrainerFileHandler.parsePredictionModelFromRawFiles(
-          biotrainerOutput: biotrainerOutput.readAsStringSync(), failOnConflict: true,);
+        biotrainerOutput: biotrainerOutput.readAsStringSync(),
+        failOnConflict: true,
+      );
       if (model == null) {
         fail('Model could not be loaded!');
       }
