@@ -17,8 +17,8 @@ Make sure that you have [git](https://git-scm.com/install/), [uv](https://docs.a
 Clone the repository and navigate into it:
 
 ```shell
-git clone https://github.com/biocentral/biocentral_server.git
-cd biocentral_server
+git clone https://github.com/biocentral/biocentral.git
+cd biocentral/biocentral_server
 ```
 
 Create a new python environment and install the requirements:
@@ -31,10 +31,9 @@ uv sync --group dev
 
 Copy the local environment file and check that it matches your requirements:
 
-````shell
 ```shell
 cp .env.local .env
-````
+```
 
 Run the additional containers (database, redis, triton etc.) via docker compose
 (automatically uses the `docker-compose.override.yml` file with appropriate overrides for local development):
