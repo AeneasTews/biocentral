@@ -41,6 +41,12 @@ class EngineeringRepository with AutoSaving, StreamableDatabase<List<Engineering
     addNewCampaign(campaign);
   }
 
+  void removeCampaign(String internalName) {
+    _campaigns.remove(internalName);
+    autosave();
+    updateStream();
+  }
+
   Map<String, dynamic> serialize() => {'campaigns': _campaigns.values.map((campaign) => campaign.serialize()).toList()};
 
   Future<String> saveDBInfo() async {

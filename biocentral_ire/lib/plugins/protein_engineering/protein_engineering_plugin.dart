@@ -2,11 +2,6 @@ import 'package:biocentral/plugins/protein_engineering/bloc/engineering_commands
 import 'package:biocentral/plugins/protein_engineering/bloc/engineering_hub_bloc.dart';
 import 'package:biocentral/plugins/protein_engineering/domain/engineering_repository.dart';
 import 'package:biocentral/plugins/protein_engineering/model/engineering_campaign.dart';
-import 'package:biocentral/plugins/protein_engineering/presentation/commands/enter_measurements_command_display.dart';
-import 'package:biocentral/plugins/protein_engineering/presentation/commands/export_engineering_campaign_command_display.dart';
-import 'package:biocentral/plugins/protein_engineering/presentation/commands/import_engineering_campaign_command_display.dart';
-import 'package:biocentral/plugins/protein_engineering/presentation/commands/new_engineering_campaign_command_display.dart';
-import 'package:biocentral/plugins/protein_engineering/presentation/commands/run_engineering_round_command_display.dart';
 import 'package:biocentral/plugins/protein_engineering/presentation/views/engineering_hub_view.dart';
 import 'package:biocentral/sdk/biocentral_sdk.dart';
 import 'package:biocentral/sdk/data/biocentral_python_companion.dart';
@@ -35,16 +30,10 @@ class EngineeringPlugin extends BiocentralPlugin with BiocentralDatabasePluginMi
     return EngineeringRepository(projectRepository);
   }
 
+  // The redesigned hub has its own campaign/section navigation; it doesn't use a generic
+  // command list, so there are no widgets to contribute here.
   @override
-  List<Widget> getCommandWidgets() {
-    return [
-      const NewEngineeringCampaignCommandDisplay(),
-      const RunEngineeringRoundCommandDisplay(),
-      const EnterMeasurementsCommandDisplay(),
-      const ExportEngineeringCampaignCommandDisplay(),
-      const ImportEngineeringCampaignCommandDisplay(),
-    ];
-  }
+  List<Widget> getCommandWidgets() => const [];
 
   @override
   Map<BlocProvider, Bloc> getListeningBlocs(BuildContext context) {
@@ -59,7 +48,7 @@ class EngineeringPlugin extends BiocentralPlugin with BiocentralDatabasePluginMi
 
   @override
   Widget getScreenView(BuildContext context) {
-    return EngineeringHubView(commandWidgets: getCommandWidgets());
+    return const EngineeringHubView();
   }
 
   @override

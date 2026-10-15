@@ -152,14 +152,13 @@ class _BiocentralMainViewState extends State<BiocentralMainView>
 
   bool _handleSideBarKeyEvent(KeyEvent event) {
     if (event is KeyDownEvent && event.logicalKey == LogicalKeyboardKey.keyT) {
-      // Check if a BiocentralExplainableWidget has focus
+      // Let a focused BiocentralExplainableWidget, or a plain text field, handle its own 't'.
       final focusedContext = FocusManager.instance.primaryFocus?.context;
-      if (focusedContext != null && _hasExplainableAncestor(focusedContext)) {
-        // Let the widget handle it
+      if (focusedContext != null && (_hasExplainableAncestor(focusedContext) || _isEditingText(focusedContext))) {
         return false;
       }
 
-      // No explainable widget focused, handle globally
+      // Nothing focused that wants 't' for itself, handle globally
       _toggleSideBar(BiocentralSideBarDisplayMode.help);
       return false;
     }
@@ -175,6 +174,18 @@ class _BiocentralMainViewState extends State<BiocentralMainView>
     bool found = false;
     context.visitAncestorElements((element) {
       if (element.widget is BiocentralExplainableWidget) {
+        found = true;
+        return false; // Stop visiting
+      }
+      return true; // Continue visiting
+    });
+    return found;
+  }
+
+  bool _isEditingText(BuildContext context) {
+    bool found = false;
+    context.visitAncestorElements((element) {
+      if (element.widget is EditableText) {
         found = true;
         return false; // Stop visiting
       }

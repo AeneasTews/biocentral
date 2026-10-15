@@ -1,30 +1,35 @@
 import 'package:bio_flutter/bio_flutter.dart';
 import 'package:biocentral/plugins/protein_engineering/domain/structure_sequence.dart';
 import 'package:biocentral/plugins/protein_engineering/model/engineering_campaign.dart';
-import 'package:biocentral/plugins/protein_engineering/presentation/commands/upload_wildtype_structure_command_display.dart';
+import 'package:biocentral/plugins/protein_engineering/presentation/commands/upload_structure_button.dart';
+import 'package:biocentral/plugins/protein_engineering/presentation/style/engineering_style.dart';
 import 'package:biocentral/sdk/presentation/widgets/biocentral_discrete_selection.dart';
 import 'package:flutter/material.dart';
 
-/// Shows the campaign's wildtype structure with the selected candidate's mutations highlighted,
-/// underneath an upload/replace control. The viewer stays hidden until a matching structure has
-/// been uploaded for this campaign.
+/// Shows the campaign's wildtype structure with [selected]'s mutations highlighted.
+/// Stays empty until a structure matching the campaign's wildtype has been uploaded.
 class EngineeringStructureViewerSection extends StatefulWidget {
   final EngineeringCampaign campaign;
   final List<StructureCandidate> candidates;
+  final StructureCandidate? selected;
+  final ValueChanged<StructureCandidate?> onSelectedChanged;
 
-  const EngineeringStructureViewerSection({required this.campaign, required this.candidates, super.key});
+  const EngineeringStructureViewerSection({
+    required this.campaign,
+    required this.candidates,
+    required this.selected,
+    required this.onSelectedChanged,
+    super.key,
+  });
 
   @override
   State<EngineeringStructureViewerSection> createState() => _EngineeringStructureViewerSectionState();
 }
 
 class _EngineeringStructureViewerSectionState extends State<EngineeringStructureViewerSection> {
-  static const Color _mutationColor = Color(0xFF8E24AA);
-
   String? _parsedFor;
   WildtypeStructureMatch? _match;
   bool _parsing = false;
-  StructureCandidate? _selected;
 
   @override
   void initState() {
@@ -38,9 +43,6 @@ class _EngineeringStructureViewerSectionState extends State<EngineeringStructure
   @override
   void didUpdateWidget(EngineeringStructureViewerSection oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (!widget.candidates.any((candidate) => candidate.sequence == _selected?.sequence)) {
-      _selected = null;
-    }
     final mmcif = widget.campaign.wildtypeStructureMmcif;
     if (mmcif != null && mmcif != _parsedFor) {
       _ensureParsed(mmcif);
@@ -69,62 +71,88 @@ class _EngineeringStructureViewerSectionState extends State<EngineeringStructure
   @override
   Widget build(BuildContext context) {
     final mmcif = widget.campaign.wildtypeStructureMmcif;
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Divider(),
-        const Text('Structure', style: TextStyle(fontWeight: FontWeight.bold)),
-        if (mmcif == null)
-          const Padding(
-            padding: EdgeInsets.symmetric(vertical: 8.0),
-            child: Text('Upload a structure of the wildtype to view mutations in 3D.'),
-          )
-        else if (mmcif != _parsedFor || _match == null)
-          const Padding(
-            padding: EdgeInsets.symmetric(vertical: 8.0),
-            child: Center(child: CircularProgressIndicator()),
-          )
-        else
-          buildViewer(_match!),
-        UploadWildtypeStructureCommandDisplay(campaign: widget.campaign),
-      ],
+    return Container(
+      padding: const EdgeInsets.all(18),
+      decoration: EngineeringStyle.cardDecoration,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text('Structure', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
+              UploadStructureButton(campaign: widget.campaign, hasStructure: mmcif != null),
+            ],
+          ),
+          const SizedBox(height: 14),
+          Expanded(
+            child: mmcif == null
+                ? _placeholder('Upload a structure of the wildtype to view mutations in 3D.')
+                : (mmcif != _parsedFor || _match == null)
+                    ? _placeholder(null)
+                    : _buildViewer(_match!),
+          ),
+        ],
+      ),
     );
   }
 
-  Widget buildViewer(WildtypeStructureMatch match) {
-    final selected = _selected;
+  Widget _placeholder(String? message) {
+    return Center(
+      child: message == null
+          ? const CircularProgressIndicator()
+          : Text(message, style: const TextStyle(color: EngineeringStyle.textSecondary)),
+    );
+  }
+
+  Widget _buildViewer(WildtypeStructureMatch match) {
+    final selected = widget.selected;
     final highlights = selected == null
         ? const <ResidueKey, Color>{}
         : highlightsForCandidate(
             match: match,
             wildtypeSequence: widget.campaign.wildtypeSequence,
             candidateSequence: selected.sequence,
-            color: _mutationColor,
+            color: EngineeringStyle.mutationColor,
           );
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        BiocentralDiscreteSelection<StructureCandidate?>(
-          title: 'Variant',
-          initialValue: _selected,
-          selectableValues: [null, ...widget.candidates],
-          displayConversion: (candidate) => candidate?.label ?? 'Wildtype',
-          onChangedCallback: (candidate) => setState(() => _selected = candidate),
-        ),
-        SizedBox(
-          height: 420,
+        Expanded(
           child: ProteinViewer(
             structure: match.structure,
             highlights: highlights,
-            style: CartoonStyle(
-              helixColor: const Color(0xFF9E793D),
-              sheetColor: Colors.green.shade600,
-              outlineColor: Colors.black,
-              outlineThickness: 0.12,
-              pencilTexture: true,
-            ),
+            style: EngineeringStyle.cartoonStyle,
           ),
+        ),
+        const SizedBox(height: 14),
+        Row(
+          children: [
+            Expanded(
+              child: BiocentralDiscreteSelection<StructureCandidate?>(
+                title: 'Variant',
+                initialValue: selected,
+                selectableValues: [null, ...widget.candidates],
+                displayConversion: (candidate) => candidate?.label ?? 'Wildtype',
+                onChangedCallback: widget.onSelectedChanged,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 10),
+        Row(
+          children: [
+            Container(
+              width: 10,
+              height: 10,
+              decoration: const BoxDecoration(color: EngineeringStyle.mutationColor, shape: BoxShape.circle),
+            ),
+            const SizedBox(width: 8),
+            Text(
+              selected == null ? 'Mutated residue' : 'Mutated residue — ${selected.label}',
+              style: const TextStyle(fontSize: 12, color: EngineeringStyle.textSecondary),
+            ),
+          ],
         ),
       ],
     );
